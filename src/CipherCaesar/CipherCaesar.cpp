@@ -25,22 +25,15 @@ CaesarEncryption::CaesarEncryption(crDataClass data, crAlphabet alphabet_data, i
 ErrorClass CaesarEncryption::operator() (rDataClass output_data)
 {
   ErrorClass output_error = g_error_free;
-
-  // Проверка на данные, что они не заглушка
-  if (this->data_encryption.IsDummy())
-    output_error = g_caesar_encr_error_lack_data;
-  if (this->alphabet_encryption.GetSize() == 0)
-    output_error |= g_caesar_encr_error_lack_alphabet;
-  if (this->shift_alphabet == UNDEFINED_VALUE_INT16_T)
-    output_error |= g_caesar_encr_error_lack_shift_alphabet;
-  if (this->shift_alphabet > static_cast<int16_t>(this->alphabet_encryption.GetSize()))
-    output_error |= g_caesar_encr_error_size_less_shift_alph;
+  // Проверяем входные данные на ошибки
+  output_error = this->CheckingForErrors(this->data_encryption, this->alphabet_encryption, this->shift_alphabet);
+  // Выбираем функцию шифрования
   if (output_error == g_error_free)
   {
     if (this->alphabet_encryption == g_english_alphabet)
-      output_error = this->MainEncryptionEng(output_data);
+      output_error = this->MainEncryptionEng(this->data_encryption, this->alphabet_encryption, this->shift_alphabet, output_data);
     else
-      output_error = this->MainEncryptionOther(output_data);
+      output_error = this->MainEncryptionOther(this->data_encryption, this->alphabet_encryption, this->shift_alphabet, output_data);
   }
 
   return output_error;
@@ -58,16 +51,9 @@ ErrorClass CaesarEncryption::operator()(crDataClass data, crAlphabet alphabet_da
                                        ,rDataClass output_data) const
 {
   ErrorClass output_error = g_error_free;
-
-  // Проверка на данные, что они не заглушка
-  if (data.IsDummy())
-    output_error = g_caesar_encr_error_lack_data;
-  if (alphabet_data.GetSize() == 0)
-    output_error |= g_caesar_encr_error_lack_alphabet;
-  if (shift_alphabet == UNDEFINED_VALUE_INT16_T)
-    output_error |= g_caesar_encr_error_lack_shift_alphabet;
-  if (shift_alphabet > static_cast<int16_t>(alphabet_data.GetSize()))
-    output_error |= g_caesar_encr_error_size_less_shift_alph;
+  // Проверяем входные данные на ошибки
+  output_error = this->CheckingForErrors(data, alphabet_data, shift_alphabet);
+  // Выбираем функцию шифрования
   if (output_error == g_error_free)
   {
     if (alphabet_data == g_english_alphabet)
@@ -80,48 +66,20 @@ ErrorClass CaesarEncryption::operator()(crDataClass data, crAlphabet alphabet_da
 }
 
 /* Реализация методов класса CaesarEncryption */
-
-ErrorClass CaesarEncryption::MainEncryptionEng(rDataClass output_data)
+ErrorClass CaesarEncryption::CheckingForErrors(crDataClass data, crAlphabet alphabet_data, int16_t shift_alphabet) const
 {
   ErrorClass output_error = g_error_free;
 
-  std::string str_output;
-  std::string str_in = this->data_encryption.GetDataStr();
-  // Цикл перебора данных, которые необходимо зашифровать
-  for (size_t ind = 0; ind < str_in.size(); ind++)
-  {
-    // Определяем порядковый номер символа в алфавите и проверяем, что он есть в алфавите
-    size_t ind_symb = this->alphabet_encryption[str_in.substr(ind,1)];
-    // Если данного символа нет в заданном алфавите, то проверяем в алфавите с пунктуацией
-    if (ind_symb == UNDEFINED_VALUE_SIZE_T)
-    {
-      ind_symb = g_punctuation_alphabet[str_in.substr(ind,1)];
-      // Если данного символа нет в заданном алфавите и алфавите с пунктуацией, то выводим соот. ошибку и заканчиваем шифрование
-      if (ind_symb == UNDEFINED_VALUE_SIZE_T)
-      {
-        output_error = g_caesar_encr_error_miss_symb_in_alph;
-        break;
-      }
-      else
-        str_output += str_in.substr(ind,1);
-    }
-    else
-    {
-      // Определяем смещенный символ
-      size_t ind_symb_next = UNDEFINED_VALUE_SIZE_T;
-      // Определяем смещенный символ и добавляем в выходную строку
-      if (ind_symb >= NUM_DIVISION_SYMBOLS)
-      {
-        ind_symb_next = (ind_symb-NUM_DIVISION_SYMBOLS+this->shift_alphabet) % this->alphabet_encryption.GetSize();
-        ind_symb_next += NUM_DIVISION_SYMBOLS;
-      }
-      else
-        ind_symb_next = (ind_symb+this->shift_alphabet)%this->alphabet_encryption.GetSize();
-      std::string symb_shift = this->alphabet_encryption[ind_symb_next];
-      str_output += symb_shift;
-    }
-  }
-  output_data.SetDataStr(str_output);
+  // Проверка на данные, что они не заглушка
+  if (data.IsDummy())
+    output_error = g_caesar_encr_error_lack_data;
+  if (alphabet_data.GetSize() == 0)
+    output_error |= g_caesar_encr_error_lack_alphabet;
+  if (shift_alphabet == UNDEFINED_VALUE_INT16_T)
+    output_error |= g_caesar_encr_error_lack_shift_alphabet;
+  if (shift_alphabet > static_cast<int16_t>(alphabet_data.GetSize()))
+    output_error |= g_caesar_encr_error_size_less_shift_alph;
+
   return output_error;
 }
 
@@ -164,57 +122,6 @@ ErrorClass CaesarEncryption::MainEncryptionEng(crDataClass data, crAlphabet alph
         ind_symb_next = (ind_symb+shift_alphabet)%alphabet_data.GetSize();
       std::string symb_shift = alphabet_data[ind_symb_next];
       str_output += symb_shift;
-    }
-  }
-  output_data.SetDataStr(str_output);
-  return output_error;
-}
-
-ErrorClass CaesarEncryption::MainEncryptionOther(rDataClass output_data)
-{
-  ErrorClass output_error = g_error_free;
-
-  std::string str_output;
-  std::string str_in = this->data_encryption.GetDataStr();
-  // Цикл перебора данных, которые необходимо зашифровать
-  for (size_t ind = 0; ind < str_in.size();)
-  {
-    // Определяем подстроку (т.к. для алфавита отличных от английского один символ занимает 2 байта), поэтому
-    // необходимо выделить 2 элемента из строки. Но пунктуационные символы занимают 1 байт, поэтому сначада проверяем
-    // является ли выделенный символ пунктуационным.
-    std::string substr = str_in.substr(ind, 1);
-    size_t ind_symb = g_punctuation_alphabet[substr];
-    if (ind_symb == UNDEFINED_VALUE_SIZE_T)
-    {
-      // Если выделенный символ не является пунктуационным, то выделяем два элемента из строки и проверяем
-      // наличие выделенного символа в алфавите
-      substr = str_in.substr(ind, 2);
-      ind_symb = this->alphabet_encryption[substr];
-      if (ind_symb == UNDEFINED_VALUE_SIZE_T)
-      {
-        output_error = g_caesar_encr_error_miss_symb_in_alph;
-        break;
-      }
-      else
-      {
-        size_t ind_symb_next = UNDEFINED_VALUE_SIZE_T;
-        // Определяем смещенный символ и добавляем в выходную строку
-        if (ind_symb >= NUM_DIVISION_SYMBOLS)
-        {
-          ind_symb_next = (ind_symb-NUM_DIVISION_SYMBOLS+this->shift_alphabet) % this->alphabet_encryption.GetSize();
-          ind_symb_next += NUM_DIVISION_SYMBOLS;
-        }
-        else
-          ind_symb_next = (ind_symb+this->shift_alphabet)%this->alphabet_encryption.GetSize();
-        std::string symb_shift = this->alphabet_encryption[ind_symb_next];
-        str_output += symb_shift;
-        ind += 2;
-      }
-    }
-    else
-    {
-      str_output += substr;
-      ind++;
     }
   }
   output_data.SetDataStr(str_output);
@@ -272,4 +179,78 @@ ErrorClass CaesarEncryption::MainEncryptionOther(crDataClass data, crAlphabet al
   output_data.SetDataStr(str_output);
   return output_error;
 }
+
+ErrorClass CaesarEncryption::SetData(crDataClass data)
+{
+  ErrorClass output_error = g_error_free;
+
+  // Проверка на данные, что они не заглушка
+  if (data.IsDummy())
+    output_error = g_caesar_encr_error_lack_data;
+  this->data_encryption = data;
+
+  return output_error;
+}
+
+ErrorClass CaesarEncryption::SetAlphabet(crAlphabet alphabet)
+{
+  ErrorClass output_error = g_error_free;
+
+  if (alphabet.GetSize() == 0)
+    output_error |= g_caesar_encr_error_lack_alphabet;
+  this->alphabet_encryption = alphabet;
+
+  return output_error;
+}
+
+ErrorClass CaesarEncryption::SetAlphabetShift(int16_t shift)
+{
+  ErrorClass error_output = g_error_free;
+
+  if (shift == UNDEFINED_VALUE_INT16_T)
+    error_output |= g_caesar_encr_error_lack_shift_alphabet;
+  if (shift > static_cast<int16_t>(this->alphabet_encryption.GetSize()))
+    error_output |= g_caesar_encr_error_size_less_shift_alph;
+
+  return error_output;
+}
+
+ErrorClass CaesarEncryption::Encrypt(rDataClass output_data)
+{
+  ErrorClass output_error = g_error_free;
+  // Проверяем входные данные на ошибки
+  output_error = this->CheckingForErrors(this->data_encryption, this->alphabet_encryption, this->shift_alphabet);
+  // Выбираем функцию шифрования
+  if (output_error == g_error_free)
+  {
+    if (this->alphabet_encryption == g_english_alphabet)
+      output_error = this->MainEncryptionEng(this->data_encryption, this->alphabet_encryption, this->shift_alphabet, output_data);
+    else
+      output_error = this->MainEncryptionOther(this->data_encryption, this->alphabet_encryption, this->shift_alphabet, output_data);
+  }
+
+  return output_error;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
