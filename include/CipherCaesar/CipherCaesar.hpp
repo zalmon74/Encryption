@@ -63,7 +63,7 @@ public:
   ErrorClass SetAlphabet(crAlphabet alphabet);
   ErrorClass SetAlphabetShift(int16_t shift);
 
-  DataClass GetData()                { return this->data_encryption;   }
+  DataClass GetData()          const { return this->data_encryption;   }
   Alphabet  GetAlphabet()      const { return this->alphabet_encryption; }
   int16_t   GetShiftAlphabet() const { return this->shift_alphabet;      }
 

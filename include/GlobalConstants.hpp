@@ -7,9 +7,14 @@
 extern cErrorClass g_error_free; // Нет ошибок
 
 /* Константы ошибок для класса с данными */
-extern cErrorClass g_data_class_error_lack_data; // В источнике данных отсутствуют данные
-// Запрашиваются данные в виде строки, но сами данные не является строчными (не установлен флаг строки) (бит = 1)
+// В источнике данных отсутствуют данные
+extern cErrorClass g_data_class_error_lack_data;
+// Запрашиваются данные в виде строки, но сами данные не является строчными (не установлен флаг строки)
 extern cErrorClass g_data_class_error_not_string;
+// Файл не для записи/чтения не может быть открыт
+extern cErrorClass g_data_class_error_file_not_open;
+// Файл при чтении был пуст
+extern cErrorClass g_data_class_error_empty_file;
 
 /* Константы ошибок для класса CaesarEncryption */
 extern cErrorClass g_caesar_encr_error_lack_data;            // Отсутствуют данные

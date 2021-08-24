@@ -7,6 +7,10 @@ extern cErrorClass g_error_free = ErrorClass(); // Нет ошибок
 extern cErrorClass g_data_class_error_lack_data = ErrorClass(TYPE_DATA_CLASS, std::vector<uint8_t>{0}); 
 // Запрашиваются данные в виде строки, но сами данные не является строчными (не установлен флаг строки) (бит = 1)
 extern cErrorClass g_data_class_error_not_string = ErrorClass(TYPE_DATA_CLASS, std::vector<uint8_t>{1});
+// Файл не для записи/чтения не может быть открыт (бит = 2)
+extern cErrorClass g_data_class_error_file_not_open = ErrorClass(TYPE_DATA_CLASS, std::vector<uint8_t>{2});
+// Файл при чтении был пуст (бит = 3)
+extern cErrorClass g_data_class_error_empty_file = ErrorClass(TYPE_DATA_CLASS, std::vector<uint8_t>{3});
 
 /* Константы ошибок для класса CaesarEncryption */
 // Отсутствуют данные (бит = 0) 
@@ -17,7 +21,7 @@ extern cErrorClass g_caesar_encr_error_lack_alphabet = ErrorClass(TYPE_CAESAR_EN
 extern cErrorClass g_caesar_encr_error_lack_shift_alphabet = ErrorClass(TYPE_CAESAR_ENCRYPTION_CLASS, std::vector<uint8_t>{2});
 // Размер алфавита меньше значения шифра (бит = 3)
 extern cErrorClass g_caesar_encr_error_size_less_shift_alph = ErrorClass(TYPE_CAESAR_ENCRYPTION_CLASS, std::vector<uint8_t>{3});
-// Отсутствует опред. символ в алфавите
+// Отсутствует опред. символ в алфавите (бит = 4)
 extern cErrorClass g_caesar_encr_error_miss_symb_in_alph = ErrorClass(TYPE_CAESAR_ENCRYPTION_CLASS, std::vector<uint8_t>{4});    
 
 /* Различные алфавиты */

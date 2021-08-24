@@ -6,8 +6,13 @@
 #include <stdint.h>
 #include <ostream>
 #include <iomanip>
+#include <fstream>
 
 #include "ErrorClass.hpp"
+#include "MyStdTypedef.hpp"
+
+#define NAME_OUTPUT_BIN_FILE "data.bin"
+#define NAME_OUTPUT_TXT_FILE "data.txt"
 
 class DataClass
 {
@@ -45,9 +50,15 @@ public:
   bool GetFlagStr                () const { return this->f_string;    }
   bool IsDummy                   () const { return this->f_dummy;     }
 
-
-  // Метод отчистки данных
+  /* Метод отчистки данных */
   void Clear();
+
+  /* Метод записи данных в файл */
+  // path_file - путь до файла
+  ErrorClass WriteDataToFile (const std::string& path_file, const std::string& name_output_file = "");
+  /* Метод чтения данных из файла */
+  // f_data_str - флаг, что чтаемые данные являются текстовыми данными
+  ErrorClass ReadDataFromFile(const std::string& path_file, crBool f_data_str);
 
 };
 

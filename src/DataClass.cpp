@@ -156,3 +156,112 @@ void DataClass::Clear()
   this->f_string = false;
   this->f_dummy  = true;
 }
+
+/* Метод записи данных в файл */
+// path_file - путь до файла
+ErrorClass DataClass::WriteDataToFile(const std::string& path_file, const std::string& name_output_file)
+{
+  ErrorClass error_output = g_error_free;
+  // Проверка на пустышку
+  if (this->IsDummy())
+    error_output = g_data_class_error_lack_data;
+  // Проверка на наличие данных
+  if (this->data.size() == 0)
+    error_output = g_data_class_error_lack_data;
+  // Если ошибок нет, то записываем данные в файл
+  if (error_output == g_error_free)
+  {
+    std::string name_file = path_file;
+    // Проверяем наличие '/' в конце пути до файла, если его нет, то добавляем
+//    if ((path_file[path_file.size()-1] == '/') || (path_file[path_file.size()-1] == '\\'))
+//      name_file += "/";
+    // Проверяем на наличие требования опред. имени файла, если нет, то назваем стандартным образом
+    if (name_output_file.size() == 0)
+    {
+      // Определяем какое из 2х стандартных имен необходимо использовать (*.txt или *.bin)
+      if (this->f_string)
+        name_file += NAME_OUTPUT_TXT_FILE;
+      else
+        name_file += NAME_OUTPUT_BIN_FILE;
+    }
+    else
+      name_file += name_output_file;
+    // Создаем поток с файлом и пытаемся его открыть
+    std::ofstream file;
+    // Зависимости какие у нас данные: строковые или бинарные, соот. образом открываем файл
+    if (this->f_string)
+      file.open(name_file, std::ios::out | std::ios::trunc);
+    else
+      file.open(name_file, std::ios::out | std::ios::trunc | std::ios::binary);
+    // Проверяем на успешность открытия файла
+    if (!file.is_open())
+      error_output = g_data_class_error_file_not_open;
+    else
+    {
+      // Если данные строковые, то необходимо сначало преобразовать их в строку, иначе записываем по байту в файл
+      if (this->f_string)
+      {
+        auto output_str = this->GetDataStr();
+        file << output_str;
+      }
+      else
+        file.write(reinterpret_cast<char*>(this->data.data()), this->data.size());
+      file.close();
+    }
+  }
+
+  return error_output;
+}
+
+/* Метод чтения данных из файла */
+// f_data_str - флаг, что чтаемые данные являются текстовыми данными
+ErrorClass DataClass::ReadDataFromFile(const std::string& path_file, crBool f_data_str)
+{
+  ErrorClass error_output = g_error_free;
+  // Создаем поток для файла
+  std::ifstream file;
+  // Открываем файл зависимости от флага типа данных
+  if (f_data_str)
+    file.open(path_file, std::ios::in);
+  else
+    file.open(path_file, std::ios::in | std::ios::binary);
+  // Проверяем на открытие файла
+  if (!file.is_open())
+    error_output = g_data_class_error_file_not_open;
+  else
+  {
+    std::vector<uint8_t> read_vec;
+    // Считываем данные из потока по 512 байт (BufSize)
+    while(!file.eof())
+    {
+      read_vec.resize(this->data.size()+BUFSIZ);
+      file.read(reinterpret_cast<char*>(read_vec.data()), BUFSIZ);
+    }
+    // Освобождаем не нужную память
+    while (!read_vec.empty() && (read_vec[read_vec.size()-1] == 0))
+      read_vec.pop_back();
+    // Проверяем, что файл был не пустым
+    if (read_vec.size() == 0)
+      error_output = g_data_class_error_empty_file;
+    else
+    {
+      // Отчищаем объект от старых данных
+      this->Clear();
+      // Убираем флаг заглушки и устанавливаем флаг данных
+      this->f_dummy  = false;
+      this->f_string = f_data_str;
+      this->data = read_vec;
+    }
+    file.close();
+  }
+
+  return error_output;
+}
+
+
+
+
+
+
+
+
