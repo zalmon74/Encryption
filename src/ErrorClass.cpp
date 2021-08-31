@@ -3,7 +3,7 @@
 /* Реализация конструкторов класса ErrorClass */
 
 // vec_num_bit - вектор с номерами битов, которые необходимо установить в 1
-ErrorClass::ErrorClass(uint16_t type_obj, std::vector<uint8_t> vec_num_bit)
+ErrorClass::ErrorClass(cUInt16_t type_obj, const std::vector<uint8_t>& vec_num_bit)
 {
   // Проверка на исключение 
   if (vec_num_bit.size() > 15)
@@ -25,21 +25,25 @@ ErrorClass::ErrorClass(uint16_t type_obj, std::vector<uint8_t> vec_num_bit)
     this->type_error |= (1 << num_bit);
   }
   this->type_error = -this->type_error;
-}
-
-ErrorClass::ErrorClass(const ErrorClass& other)
-{
-  this->error = other.error;
+  this->type_obj   = -this->type_obj  ;
 }
 
 /* Реализация перегрузки операторов класса ErrorClass */
 
 ErrorClass& ErrorClass::operator|= (const ErrorClass other)
 {
+  if (this->type_obj != other.type_obj)
+  {
+    throw std::invalid_argument("Типы объектов для которых соот. данные ошибки, у выбранных объектов различаются");
+  }
+
   if ((this->type_obj == other.type_obj) || (this->type_obj == 0)) 
   {
     this->type_obj    = other.type_obj;
-    this->type_error |= other.type_error;
+    // декодируем тип ошибки для установки соот. бит, затем кодируем обратно
+    this->type_error = -this->type_error;
+    this->type_error |= (-other.type_error);
+    this->type_error = -this->type_error;
   }
   return *this;
 }

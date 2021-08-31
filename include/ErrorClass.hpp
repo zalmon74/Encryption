@@ -18,8 +18,8 @@ private:
     /* Ошибка расписанная по битам */
     struct 
     {
-      int32_t type_obj    : 16;  // Тип объекта у которой возникла данная ошибка
-      int32_t type_error  : 16; // Тип ошибки
+      uint16_t type_obj ;  // Тип объекта у которой возникла данная ошибка
+      int16_t type_error; // Тип ошибки
     };
   };
 
@@ -32,11 +32,11 @@ public:
   explicit ErrorClass() : error(0) {}
   // vec_num_bit - вектор с номерами битов, которые необходимо установить в 1 
   //! значение, которое должен хранить вектор, не должно превышать 15 (нумерация начинается с 0), иначе вызовится исключение
-  explicit ErrorClass(uint16_t type_obj, std::vector<uint8_t> vec_num_bit);
-  ErrorClass(const ErrorClass&);
+  explicit ErrorClass(cUInt16_t type_obj, const std::vector<uint8_t>& vec_num_bit);
+  ErrorClass(const ErrorClass&) = default;
  
   // Перегрузка операторов
-  ErrorClass& operator= (const ErrorClass& other) = default;
+  ErrorClass& operator= (const ErrorClass&) = default;
 
   bool operator!= (const ErrorClass other) const { return (this->error != other.error); }
   bool operator== (const ErrorClass other) const { return (this->error == other.error); }

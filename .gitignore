@@ -33,5 +33,7 @@
 
 *.vscode
 main.cpp
+!test/main.cpp
 *.pro
 *.pro.*
+test/build*
