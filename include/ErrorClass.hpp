@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <stdexcept>
 
 #include "MyStdTypedef.hpp"
 
@@ -30,7 +31,7 @@ public:
 
   explicit ErrorClass() : error(0) {}
   // vec_num_bit - вектор с номерами битов, которые необходимо установить в 1 
-  //! значение, которое должен хранить вектор, не должно превышать 15 (нумерация начинается с 0)
+  //! значение, которое должен хранить вектор, не должно превышать 15 (нумерация начинается с 0), иначе вызовится исключение
   explicit ErrorClass(uint16_t type_obj, std::vector<uint8_t> vec_num_bit);
   ErrorClass(const ErrorClass&);
  
