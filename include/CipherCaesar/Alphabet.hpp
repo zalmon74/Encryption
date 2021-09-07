@@ -3,6 +3,9 @@
 
 #include <map>
 #include <string>
+#include <cmath>
+
+#include "../../include/MyStdTypedef.hpp"
 
 /*
  * Данный класс содержит в себе алфавит. Для разделения прописных и строчных букв необходимо
