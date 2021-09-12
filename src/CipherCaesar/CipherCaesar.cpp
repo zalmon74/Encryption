@@ -73,7 +73,7 @@ ErrorClass CaesarEncryption::CheckingForErrors(crDataClass data, crAlphabet alph
   // Проверка на данные, что они не заглушка
   if (data.IsDummy())
     output_error = g_caesar_encr_error_lack_data;
-  if (alphabet_data.GetSize() == 0)
+  if ((alphabet_data.GetSize() == 0) || (alphabet_data.IsDummy()))
     output_error |= g_caesar_encr_error_lack_alphabet;
   if (shift_alphabet == UNDEFINED_VALUE_INT16_T)
     output_error |= g_caesar_encr_error_lack_shift_alphabet;
@@ -187,7 +187,8 @@ ErrorClass CaesarEncryption::SetData(crDataClass data)
   // Проверка на данные, что они не заглушка
   if (data.IsDummy())
     output_error = g_caesar_encr_error_lack_data;
-  this->data_encryption = data;
+  else
+    this->data_encryption = data;
 
   return output_error;
 }
@@ -196,9 +197,10 @@ ErrorClass CaesarEncryption::SetAlphabet(crAlphabet alphabet)
 {
   ErrorClass output_error = g_error_free;
 
-  if (alphabet.GetSize() == 0)
+  if ((alphabet.GetSize() == 0) || (alphabet.IsDummy()))
     output_error |= g_caesar_encr_error_lack_alphabet;
-  this->alphabet_encryption = alphabet;
+  else
+    this->alphabet_encryption = alphabet;
 
   return output_error;
 }
@@ -211,6 +213,8 @@ ErrorClass CaesarEncryption::SetAlphabetShift(int16_t shift)
     error_output |= g_caesar_encr_error_lack_shift_alphabet;
   if (shift > static_cast<int16_t>(this->alphabet_encryption.GetSize()))
     error_output |= g_caesar_encr_error_size_less_shift_alph;
+  else
+    this->shift_alphabet = shift;
 
   return error_output;
 }

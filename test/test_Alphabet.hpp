@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(CunstructorWithNoParametrs)
 {
   // Объекты для тестирования
   const size_t relevant_ind  = UNDEFINED_VALUE_SIZE_T;
-  const size_t relevant_size = UNDEFINED_VALUE_SIZE_T;
+  const size_t relevant_size = 0;
   const bool  relevant_dummy = true;
   Alphabet test_obj;
   // Тестирование

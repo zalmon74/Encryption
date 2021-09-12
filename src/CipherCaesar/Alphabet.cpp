@@ -8,7 +8,7 @@ Alphabet::Alphabet()
    * Так как при создании объекта через конструктор без аргументов создается пустышка, 
    * то все поля устанавливается в неизвестное значение, кроме соот. флага
    */
-  this->size_alphabet       = UNDEFINED_VALUE_SIZE_T;
+  this->size_alphabet       = 0;
   this->ind_start_lowercase = UNDEFINED_VALUE_SIZE_T;
   this->ind_end_lowercase   = UNDEFINED_VALUE_SIZE_T;   
   this->ind_start_uppercase = UNDEFINED_VALUE_SIZE_T; 
@@ -19,7 +19,7 @@ Alphabet::Alphabet()
 
 Alphabet::Alphabet(const std::map<size_t, std::string>& input_map)
 {
-  this->size_alphabet       = UNDEFINED_VALUE_SIZE_T;
+  this->size_alphabet       = 0;
   this->ind_start_lowercase = UNDEFINED_VALUE_SIZE_T;
   this->ind_end_lowercase   = UNDEFINED_VALUE_SIZE_T;   
   this->ind_start_uppercase = UNDEFINED_VALUE_SIZE_T; 
